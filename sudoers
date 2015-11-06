@@ -1,0 +1,2 @@
+your_user ALL=NOPASSWD:/usr/bin/systemctl suspend
+your_user ALL=NOPASSWD:/usr/bin/systemctl start sddm
