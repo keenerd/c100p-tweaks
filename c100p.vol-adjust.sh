@@ -1,23 +1,41 @@
 #! /bin/sh
 
 # amixer really does not want to be fine-grained
+# (alsamixer does 1dB steps, amixer does 2dB)
+# the 'digital' knobs provide attenuation across all channels
+# fake fine grain by staggering across three channels
 # mute and toggle are different?  but both set [on]
+# dB and percent adjustment does not work?
 
 if [[ "$1" == "toggle" ]]; then
     amixer sset Speaker toggle
 fi
+
+touch /tmp/.vol_knob
+read -r vol_knob < /tmp/.vol_knob
+
+case "$vol_knob" in
+    'Digital')    echo 'Digital EQ' > /tmp/.vol_knob ;;
+    'Digital EQ') echo 'hardware' > /tmp/.vol_knob ;;
+    'hardware'|*) echo 'Digital' > /tmp/.vol_knob
+                  vol_knob='hardware' ;;
+esac
 
 sink=Headphone
 if ( amixer -- sget Speaker | grep -q '\[on\]' ); then
     sink=Speaker
 fi
 
+if [[ "$vol_knob" == "hardware" ]]; then
+    vol_knob="$sink"
+fi
+
 if [[ "$1" == "up" ]]; then
-    amixer -- sset $sink 1+ &
+    amixer -q -M -- sset "$vol_knob" 1+ &
 fi
 
 if [[ "$1" == "down" ]]; then
-    amixer -- sset $sink 1- &
+    amixer -q -M -- sset "$vol_knob" 1- &
 fi
 
 pkill osd_cat
