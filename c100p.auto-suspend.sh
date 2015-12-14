@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # vaguely, try to figure out if it is safe to suspend
 # use case is when the computer is accidentally left unattended
@@ -12,6 +12,8 @@
 # show a warning just before
 # okay if this is X-only
 
+# bug? Unplugging does not count as activity -> instant suspend
+
 poll_rate=60    # seconds 
 grace=60        # seconds
 idle_limit=5    # minutes
@@ -22,7 +24,7 @@ net_future=0    # expected minimum bytes
 
 on_battery()
 {
-    battery=$(cat /sys/class/power_supply/bq27500-0/status)
+    read -r battery < /sys/class/power_supply/bq27500-0/status
     [[ "$battery" == "Discharging" ]]
 }
 
@@ -55,8 +57,8 @@ flash_drive()
 network_bytes()
 {
     # other interfaces ?
-    rx=$(cat /sys/class/net/wlan0/statistics/rx_packets)
-    tx=$(cat /sys/class/net/wlan0/statistics/tx_packets)
+    read -r rx < /sys/class/net/wlan0/statistics/rx_packets
+    read -r tx < /sys/class/net/wlan0/statistics/tx_packets
     echo $(( $rx + $tx ))
 }
 
