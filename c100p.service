@@ -1,0 +1,9 @@
+[Unit]
+Description=C100P tweaks
+
+[Service]
+User=%I
+ExecStart=/usr/bin/c100p.tablet-mode
+
+[Install]
+WantedBy=multi-user.target
